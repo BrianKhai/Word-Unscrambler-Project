@@ -1,0 +1,73 @@
+air conditioner
+alternator bearing
+antenna assembly
+automobile
+ball bearing
+ball joint
+battery
+blower fan
+brake line
+brake pad
+brake rotor
+camshaft position sensor
+camshaft seal
+carburator
+clutch
+clutch pack
+connecting rod
+coolant temperature sensor
+control arm
+crankshaft
+crankshaft position sensor
+differential
+diffuser
+drive shaft
+dual clutch transmission
+dual overhead cam
+electric power steering
+exhaust manifold
+fuel injection
+fuel line
+fuel pressure
+fuel pump
+fuel rail
+halogen
+headlight
+head gasket
+hood latch
+hydraulic power steering
+ignition coil
+intercooler
+knock sensor
+limited slip
+multilink suspension
+overhead valve
+piston
+rack and pinion
+radial tire
+rear wing
+rocker arms
+roll cage
+roller bearings
+single overhead cam
+spark plugs
+starter
+McPherson strut suspension
+super charger
+suspension
+thermostat
+timing belt
+timing gear
+torsion beam suspension
+trailing arm
+transmission
+turbo charger
+valve cover
+valve spring
+valve stem
+water pump
+windshield
+windshield seal
+windshield wiper
+wiper motor
+wishbone suspension
