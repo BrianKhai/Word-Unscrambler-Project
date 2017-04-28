@@ -76,7 +76,7 @@ void HashClass::Hash(string str) {
 // 4. If the letter exists it increments a counter
 // 5. If the number of letters that exist is the same
 //    as the length of the dictionary word then that is 
-//	  the word
+//    the word
 // 6. Print that word and set the function to return true
 bool HashClass::SearchHash(string str) {
 	bool scrambled_word = false;
@@ -135,7 +135,7 @@ void HashClass::Print() {
 	}
 }
 
-// The menu is incomplete
+// The menu is mostly complete
 int main() {
 	HashClass a;
 	string current_word;
