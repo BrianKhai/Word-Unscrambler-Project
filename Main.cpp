@@ -67,19 +67,19 @@ void HashClass::Hash(string str) {
 	}
 }
 
-// ** Looks through each entry then does the following **
+// ** Looks through each entry doing the following **
 // 1. Compares the sum of all the letters added together
 // 2. Compares the length of the words
-// 3. Compares each letter of words with eachother,
-//    if it does it sets that character to NULL and starts
-//    over again with the next letter
-// 4. If the letter exists it increments a counter
-// 5. If the number of letters that exist is the same
+// 3. Compares each letter of words with eachother
+//      a) If the letter exists, it sets that character to NULL
+//      b) If the letter exists, it increments a counter
+// 4. If the number of letters that exist is the same
 //    as the length of the dictionary word then that is 
 //    the word
-// 6. Print that word and set the function to return true
+// 5. Print the word
+// 6. Set the function to return true
 bool HashClass::SearchHash(string str) {
-	bool scrambled_word = false;
+	bool scrambled_word_found = false;
 	unsigned simple_value = GenerateSimple(str);
 	for (int i = 0; i < table_size; i++) {
 		node* nodePtr = HashTable[i];
@@ -104,14 +104,14 @@ bool HashClass::SearchHash(string str) {
 				}
 				if (good_letters == copy.length()) {
 					cout << nodePtr->entry << endl;
-					scrambled_word = true;
+					scrambled_word_found = true;
 				}
 			} 
 			nodePtr = nodePtr->next;
 		}
 	}
 
-	return scrambled_word;
+	return scrambled_word_found;
 }
 
 // Goes through each entry and hash value and prints it
@@ -172,9 +172,8 @@ int main() {
 		} else {
 			cout << "Invalid input!\n";
 		}
-		
+		system("PAUSE");
+		system("CLS");
 	} while (good_input);
-
-	system("PAUSE");
 	return 0;
 }
