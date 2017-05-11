@@ -19,22 +19,20 @@ HashClass::HashClass() {
 // This is what is used for sorting into the table
 unsigned HashClass::GenerateHash(string str) {
 	unsigned a = 0x811c9dc5;
-	unsigned b = 0;
+	unsigned b = 16777619;
 	unsigned hash_value = 0;
 
 	for (int i = 0; i < str.length(); i++) {
 		a += str[i];
-		b += + a + i;
+		b *= a;
 	}
-	hash_value = (a + b);
+	hash_value = b;
 
 	return hash_value;
-
 }
 
 // Creates a simple value for a string
 // I use this to compare to the scrambled word
-// IE: "asdf" and "fdas" have the same simple values
 unsigned HashClass::GenerateSimple(string str) {
 	int simple_value = 0;
 	for (int i = 0; i < str.length(); i++) {
@@ -56,10 +54,11 @@ void HashClass::Hash(string str) {
 	newPtr->simple_value = simple_value;
 	newPtr->entry = str;
 	newPtr->next = NULL;
-	
+
 	if (!HashTable[i]) {
 		HashTable[i] = newPtr;
-	} else {
+	}
+	else {
 		while (nodePtr->next) {
 			nodePtr = nodePtr->next;
 		}
@@ -98,31 +97,34 @@ bool HashClass::SearchHash(string str) {
 					}
 					if (letter_present) {
 						good_letters++;
-					} else {
+					}
+					else {
 						j = str.length();
 					}
 				}
 				if (good_letters == copy.length()) {
 					cout << nodePtr->entry << endl;
+					cout << "----------------------------------------------\n";
 					scrambled_word_found = true;
 				}
-			} 
+			}
 			nodePtr = nodePtr->next;
 		}
 	}
-
 	return scrambled_word_found;
 }
 
 // Goes through each entry and hash value and prints it
 // Tells the collisions of each bucket
-void HashClass::Print() {
+void HashClass::PrintHash() {
+	int total_collisions = 0;
+	int max_collisions = 0;
 	for (int i = 0; i < table_size; i++) {
 		int collisions = -1;
 		cout << i << endl;
 		node* nodePtr = HashTable[i];
 		while (nodePtr) {
-			cout << setw(35) << left << nodePtr->entry ;
+			cout << setw(30) << left << nodePtr->entry;
 			cout << nodePtr->hash_value << endl;
 			nodePtr = nodePtr->next;
 			collisions++;
@@ -130,18 +132,51 @@ void HashClass::Print() {
 		if (collisions < 0) {
 			collisions = 0;
 		}
-		cout << setw(35) << "" << "Collisions: " << collisions << endl;
+		if (max_collisions <= collisions) {
+			max_collisions = collisions;
+		}
+		total_collisions += collisions;
+		cout << setw(30) << "" << "Collisions: " << collisions << endl;
 		cout << endl;
+	}
+	cout << "----------------------------------------------\n";
+	cout << "Table Size: " << table_size << endl;
+	cout << "Max Collisions: " << max_collisions << endl;
+	cout << "Total Collisions: " << total_collisions << endl;
+	cout << "----------------------------------------------\n";
+}
+
+// Print every word in table
+void HashClass::Print() {
+	string first_word, second_word, third_word;
+	for (int i = 0; i < table_size; i++) {
+		node* nodePtr = HashTable[i];
+		while (nodePtr) {
+			if (first_word.empty()) {
+				first_word = nodePtr->entry;
+			} else if (second_word.empty()) {
+				second_word = nodePtr->entry;
+			} else if (third_word.empty()) {
+				third_word = nodePtr->entry;
+			} else {
+				cout << setw(30) << left << first_word << setw(30) << second_word << setw(30) << third_word << endl;
+				first_word = nodePtr->entry;
+				second_word = "";
+				third_word = "";
+			}
+			nodePtr = nodePtr->next;
+		}
 	}
 }
 
 // The menu is mostly complete
 int main() {
+
 	HashClass a;
 	string current_word;
 	string word_to_check;
-	ifstream dictionary;
 	bool good_input = true;
+	ifstream dictionary;
 	dictionary.open("projdictionary.txt");
 
 	while (getline(dictionary, current_word)) {
@@ -151,26 +186,42 @@ int main() {
 	dictionary.close();
 
 	do {
+		cout << "----------------------------------------------\n";
 		cout << "[U]nscramble a word\n";
 		cout << "[P]rint dictionary\n";
+		cout << "[S]how hash values\n";
 		cout << "[Q]uit\n";
+		cout << "----------------------------------------------\n";
 		getline(cin, word_to_check);
-
+		cout << endl;
 		if (word_to_check == "u" || word_to_check == "U") {
+			cout << "----------------------------------------------\n";
 			cout << "Input a word to search!\n";
+			cout << "----------------------------------------------\n";
 			getline(cin, word_to_check);
+			
 			cout << "Your word appears to be...\n";
 			if (a.SearchHash(word_to_check)) {
-			} else {
+			}
+			else {
 				cout << "Not in our dictionary!\n";
+				cout << "----------------------------------------------\n";
 			}
 		} else if (word_to_check == "p" || word_to_check == "P") {
 			a.Print();
-		} else if (word_to_check == "q" || word_to_check == "Q") {
+		} else if (word_to_check == "s" || word_to_check == "S") {
+			a.PrintHash();
+		}
+		else if (word_to_check == "q" || word_to_check == "Q") {
 			good_input = false;
+			cout << "----------------------------------------------\n";
 			cout << "Thank you for using our program!\n";
-		} else {
+			cout << "----------------------------------------------\n";
+		}
+		else {
+			cout << "----------------------------------------------\n";
 			cout << "Invalid input!\n";
+			cout << "----------------------------------------------\n";
 		}
 		system("PAUSE");
 		system("CLS");
