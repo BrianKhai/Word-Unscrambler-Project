@@ -1,230 +1,103 @@
 /*
+Aaron Carver
 Brian Khai
-Homework 3.0
-4/18/17
+Joey Hwang
+John Kwak
+
+CSCI 133 Project
+5/18/17
 Visual Studio 2015
-Hash functions to minimize collisions
+Unscrambling program with stored dictionary
 */
 
 #include "Header.h"
 
-// Constructor initializes all the indexs of the table to NULL
-HashClass::HashClass() {
-	for (int i = 0; i < table_size; i++) {
-		HashTable[i] = NULL;
-	}
-}
-
-// Creates a hash value for a string
-// This is what is used for sorting into the table
-unsigned HashClass::GenerateHash(string str) {
-	unsigned a = 0x811c9dc5;
-	unsigned b = 16777619;
-	unsigned hash_value = 0;
-
-	for (int i = 0; i < str.length(); i++) {
-		a += str[i];
-		b *= a;
-	}
-	hash_value = b;
-
-	return hash_value;
-}
-
-// Creates a simple value for a string
-// I use this to compare to the scrambled word
-unsigned HashClass::GenerateSimple(string str) {
-	int simple_value = 0;
-	for (int i = 0; i < str.length(); i++) {
-		simple_value += str[i];
-	}
-	return simple_value;
-}
-
-// Takes the hash value, simple value, and word
-// and puts it inside the hash table
-void HashClass::Hash(string str) {
-	unsigned hash_value = GenerateHash(str);
-	unsigned simple_value = GenerateSimple(str);
-	unsigned i = hash_value % table_size;
-
-	node* nodePtr = HashTable[i];
-	node* newPtr = new node;
-	newPtr->hash_value = hash_value;
-	newPtr->simple_value = simple_value;
-	newPtr->entry = str;
-	newPtr->next = NULL;
-
-	if (!HashTable[i]) {
-		HashTable[i] = newPtr;
-	}
-	else {
-		while (nodePtr->next) {
-			nodePtr = nodePtr->next;
-		}
-		nodePtr->next = newPtr;
-	}
-}
-
-// ** Looks through each entry doing the following **
-// 1. Compares the sum of all the letters added together
-// 2. Compares the length of the words
-// 3. Compares each letter of words with eachother
-//      a) If the letter exists, it sets that character to NULL
-//      b) If the letter exists, it increments a counter
-// 4. If the number of letters that exist is the same
-//    as the length of the dictionary word then that is 
-//    the word
-// 5. Print the word
-// 6. Set the function to return true
-bool HashClass::SearchHash(string str) {
-	bool scrambled_word_found = false;
-	unsigned simple_value = GenerateSimple(str);
-	for (int i = 0; i < table_size; i++) {
-		node* nodePtr = HashTable[i];
-		while (nodePtr) {
-			string copy = nodePtr->entry;
-			if (nodePtr->simple_value == simple_value && copy.length() == str.length()) {
-				int good_letters = 0;
-				for (int j = 0; j < str.length(); j++) {
-					bool letter_present = false;
-					for (int k = 0; k < str.length(); k++) {
-						if (str[j] == copy[k]) {
-							copy[k] = NULL;
-							letter_present = true;
-							k = str.length();
-						}
-					}
-					if (letter_present) {
-						good_letters++;
-					}
-					else {
-						j = str.length();
-					}
-				}
-				if (good_letters == copy.length()) {
-					cout << nodePtr->entry << endl;
-					cout << "----------------------------------------------\n";
-					scrambled_word_found = true;
-				}
-			}
-			nodePtr = nodePtr->next;
-		}
-	}
-	return scrambled_word_found;
-}
-
-// Goes through each entry and hash value and prints it
-// Tells the collisions of each bucket
-void HashClass::PrintHash() {
-	int total_collisions = 0;
-	int max_collisions = 0;
-	for (int i = 0; i < table_size; i++) {
-		int collisions = -1;
-		cout << i << endl;
-		node* nodePtr = HashTable[i];
-		while (nodePtr) {
-			cout << setw(30) << left << nodePtr->entry;
-			cout << nodePtr->hash_value << endl;
-			nodePtr = nodePtr->next;
-			collisions++;
-		}
-		if (collisions < 0) {
-			collisions = 0;
-		}
-		if (max_collisions <= collisions) {
-			max_collisions = collisions;
-		}
-		total_collisions += collisions;
-		cout << setw(30) << "" << "Collisions: " << collisions << endl;
-		cout << endl;
-	}
-	cout << "----------------------------------------------\n";
-	cout << "Table Size: " << table_size << endl;
-	cout << "Max Collisions: " << max_collisions << endl;
-	cout << "Total Collisions: " << total_collisions << endl;
-	cout << "----------------------------------------------\n";
-}
-
-// Print every word in table
-void HashClass::Print() {
-	string first_word, second_word, third_word;
-	for (int i = 0; i < table_size; i++) {
-		node* nodePtr = HashTable[i];
-		while (nodePtr) {
-			if (first_word.empty()) {
-				first_word = nodePtr->entry;
-			} else if (second_word.empty()) {
-				second_word = nodePtr->entry;
-			} else if (third_word.empty()) {
-				third_word = nodePtr->entry;
-			} else {
-				cout << setw(30) << left << first_word << setw(30) << second_word << setw(30) << third_word << endl;
-				first_word = nodePtr->entry;
-				second_word = "";
-				third_word = "";
-			}
-			nodePtr = nodePtr->next;
-		}
-	}
-}
-
-// The menu is mostly complete
+// The menu opens a file and reads it's contents to the hash table creating
+// it's associated hashes and storing the data. It prints out the dictionary
+// and then main menu which allows the user to select whether he wants to:
+// [U]nscramble a word, [A]dd a word, [D]elete a word, [P]rint the dictionary,
+// [S]how hash values, or [Q]uit.
 int main() {
-
 	HashClass a;
 	string current_word;
-	string word_to_check;
-	bool good_input = true;
+	string user_input;
+	bool user_wishes_to_continue = true;
+
 	ifstream dictionary;
-	dictionary.open("projdictionary.txt");
+	dictionary.open("projdictionaryHARD.txt");
 
 	while (getline(dictionary, current_word)) {
-		a.Hash(current_word);
+		a.AddWord(current_word);
 	}
-	a.Print();
 	dictionary.close();
+	a.Print();
 
 	do {
-		cout << "----------------------------------------------\n";
+		cout << "-------------------MAINMENU-------------------\n";
 		cout << "[U]nscramble a word\n";
+		cout << "[A]dd a word\n";
+		cout << "[D]elete a word\n";
 		cout << "[P]rint dictionary\n";
 		cout << "[S]how hash values\n";
 		cout << "[Q]uit\n";
 		cout << "----------------------------------------------\n";
-		getline(cin, word_to_check);
-		cout << endl;
-		if (word_to_check == "u" || word_to_check == "U") {
+		getline(cin, user_input);
+		system("CLS");
+		if (user_input == "u" || user_input == "U") {
 			cout << "----------------------------------------------\n";
 			cout << "Input a word to search!\n";
 			cout << "----------------------------------------------\n";
-			getline(cin, word_to_check);
-			
+			getline(cin, user_input);
+			string search_word = a.SearchHash(user_input);
 			cout << "Your word appears to be...\n";
-			if (a.SearchHash(word_to_check)) {
+			if (!search_word.empty()) {
+				cout << search_word << endl;
 			}
 			else {
 				cout << "Not in our dictionary!\n";
-				cout << "----------------------------------------------\n";
 			}
-		} else if (word_to_check == "p" || word_to_check == "P") {
+			cout << "----------------------------------------------\n";
+		}
+		else if (user_input == "a" || user_input == "A") {
+			cout << "----------------------------------------------\n";
+			cout << "Input a word to add!\n";
+			cout << "----------------------------------------------\n";
+			getline(cin, user_input);
+			a.AddWord(user_input);
+			cout << "Your word has been added to the dictionary!\n";
+			cout << "----------------------------------------------\n";
+		} 
+		else if (user_input == "d" || user_input == "D") {
+			cout << "----------------------------------------------\n";
+			cout << "Input a word to delete!\n";
+			cout << "----------------------------------------------\n";
+			getline(cin, user_input);
+			a.DeleteWord(user_input);
+		}
+		else if (user_input == "p" || user_input == "P") {
 			a.Print();
-		} else if (word_to_check == "s" || word_to_check == "S") {
+		} else if (user_input == "s" || user_input == "S") {
 			a.PrintHash();
 		}
-		else if (word_to_check == "q" || word_to_check == "Q") {
-			good_input = false;
+		else if (user_input == "q" || user_input == "Q") {
 			cout << "----------------------------------------------\n";
-			cout << "Thank you for using our program!\n";
+			cout << "Are you sure you want to [Q]uit?\n";
+			cout << "Press any other key to continue program...\n";
 			cout << "----------------------------------------------\n";
-		}
-		else {
+			getline(cin, user_input);
+			if (user_input == "q" || user_input == "Q") {
+				cout << "Thank you for using our program!\n";
+				cout << "----------------------------------------------\n";
+				user_wishes_to_continue = false;
+			}
+		} else {
 			cout << "----------------------------------------------\n";
 			cout << "Invalid input!\n";
 			cout << "----------------------------------------------\n";
 		}
 		system("PAUSE");
 		system("CLS");
-	} while (good_input);
+	} while (user_wishes_to_continue);
+
 	return 0;
 }
